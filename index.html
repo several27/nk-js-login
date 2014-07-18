@@ -1,0 +1,76 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>Logowanie przez nk.pl</script>
+	<script type="text/javascript">
+		// Prosta implementacja listenera zmian w zmiennej
+		if (!Object.prototype.watch) 
+		{
+			Object.defineProperty(Object.prototype, "watch",
+			{
+				enumerable: false, 
+				configurable: true, 
+				writable: false, 
+				value: function (prop, handler) 
+				{
+					var oldval = this[prop],
+					newval = oldval, 
+					getter = function () 
+					{
+						return newval;
+					}, 
+					setter = function (val) 
+					{
+						oldval = newval;
+						return newval = handler.call(this, prop, oldval, val);
+					};
+			
+					if (delete this[prop]) 
+					{ // can't watch constants
+						Object.defineProperty(this, prop, 
+						{
+							  get: getter, 
+							  set: setter, 
+							  enumerable: true,
+							  configurable: true
+						});
+					}
+				}
+			});
+		}
+		
+		// Funkcja login wywoływana po kliknięciu
+		// wyświetla okienko do zalogowania
+		function login()
+		{
+			window.$windowScope = $scope;
+			var client_id = ''; // NK Klucz
+			var callback = 'http://localhost/callback.php'; // Link do callbacku do którego zostanie przekierowane okienko
+			var scopes = 'BASIC_PROFILE_ROLE,EMAIL_PROFILE_ROLE';
+
+			var url = "https://nk.pl/oauth2/auth?client_id=" + encodeURIComponent(client_id) + "&response_type=token";
+			url += "&scope=" + encodeURIComponent(scopes);
+			if(null !== callback) url += "&redirect_uri=" + encodeURIComponent(callback);
+
+			window.isDestOAuthWindow = true;
+			var width = 500;
+			var height = 260;
+			var oAuthWindow = window.open(url, "NK", "left=" + (screen.availWidth / 2 - width / 2) + ",top=" + (screen.availHeight / 2 - height / 2) + ",width=" + width + ",height=" + height + ",resizable=1,status=0,scrollbars=1");
+			oAuthWindow.focus();
+
+			return true;
+		}
+		
+		// Funkcja wywoływana, gdy okienko zwróci token
+		window.watch('naszaKlasaCallback', function()
+		{
+			var accessToken = window.naszaKlasaCallback.split('#')[1];
+			document.getElementById('token').innerHTML = 'Token: ' + accessToken;
+		});
+	</script>
+</head>
+<body>
+	<a onclick="login()">Zaloguj się za pomocą nk.pl</a>
+	<div id="token">Tutaj po zalogowaniu się pojawi token :)</div>
+</body>
+</html>
