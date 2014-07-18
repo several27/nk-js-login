@@ -21,9 +21,7 @@
   
   			if((/access_token=/.test(window.location.hash) || (/error=/.test(window.location.hash))) && oAuthWindow)
   			{
-  				oAuthWindow.$windowScope.naszaKlasaCallback = window.location.href + "&dest_frame=true";
-  				oAuthWindow.$windowScope.$apply();
-  
+  				oAuthWindow.naszaKlasaCallback = window.location.href + "&dest_frame=true";
   				window.close();
   			}
   		}
